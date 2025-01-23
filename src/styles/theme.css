@@ -1,0 +1,15 @@
+:root {
+  --theme-page-bg: #ffffff;
+  --theme-page-secondary-bg: #f1f2f3;
+
+  --theme-active: #007aff;
+  --theme-active-contrast: #ffffff;
+
+  --theme-primary-text: #303133;
+  --theme-regular-text: #606266;
+  --theme-secondary-text: #909399;
+
+  --theme-base-border: #dcdfe6;
+
+  --theme-border-radius: 6px;
+}
