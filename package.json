@@ -1,7 +1,9 @@
 {
   "name": "vite-project",
-  "private": true,
   "version": "0.0.0",
+  "private": false,
+  "author": "陈炳泽",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
