@@ -113,6 +113,10 @@ export default class LayoutContainer extends BaseMateriel {
                 value: 12,
                 options: [
                   {
+                    label: '0',
+                    value: 0
+                  },
+                  {
                     label: '1',
                     value: 1
                   },
@@ -216,6 +220,10 @@ export default class LayoutContainer extends BaseMateriel {
                 type: 'select',
                 value: 0,
                 options: [
+                  {
+                    label: '0',
+                    value: 0
+                  },
                   {
                     label: '1',
                     value: 1
