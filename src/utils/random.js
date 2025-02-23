@@ -11,7 +11,7 @@ const upperCaseStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
  */
 const random = (length, chars) => {
   let result = '';
-  for (let i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = length; i > 0; --i) { result += chars[Math.floor(Math.random() * chars.length)]; }
   return result;
 };
 

@@ -5,6 +5,8 @@ import useCustomPage from '@/hooks/useCustomPage';
 import IframeMessage from '@/common/IframeMessage';
 import Subscribe from '@/common/Subscribe';
 import useAction from '@/hooks/useAction';
+import userDefined from '@/utils/userDefined';
+import random from '@/utils/random';
 
 
 const { initCustomPageData } = useCustomPage();
@@ -12,6 +14,8 @@ const { initCustomPageData } = useCustomPage();
 const { parseActionList } = useAction();
 
 const customPageData = ref(null);
+
+const customPageKey = ref(random.lowerCase());
 
 const iframeMessage = new IframeMessage();
 
@@ -27,6 +31,8 @@ function init(data) {
   option.subscribe = new Subscribe();
 
   handleEvents();
+
+  customPageKey.value = random.lowerCase();
 }
 
 onMounted(() => {
@@ -84,6 +90,17 @@ function handleEvents() {
   });
 }
 
+function setGlobalData(data) {
+  const text = JSON.stringify(customPageData.value);
+
+  // 替换自定义页面数据中的全局变量
+  const newText = userDefined.replaceTemplate(text, data);
+
+  init(JSON.parse(newText));
+}
+
+window.setGlobalData = setGlobalData;
+
 // 监听消息
 iframeMessage.onMessage = (event) => {
   const { type, data } = event;
@@ -96,12 +113,21 @@ iframeMessage.onMessage = (event) => {
       data: data
     });
   }
+
+  if (type === 'setGlobalData') {
+    setGlobalData(data);
+
+    iframeMessage.send({
+      type: 'setGlobalDataCallback',
+      data: data
+    });
+  }
 };
 </script>
 
 <template>
-  <div v-if="customPageData && customPageData.length">
-    <RenderEngine :renderList="customPageData" :option="option" :key="customPageData[0].key" />
+  <div v-if="customPageData && customPageData.length" :key="customPageKey">
+    <RenderEngine :renderList="customPageData" :option="option" />
   </div>
 </template>
 

@@ -223,7 +223,7 @@ function getTextColor(backgroundColor) {
   return brightness > 186 ? '#000000' : '#FFFFFF'; // 186 是常用的阈值
 }
 
-const exportJSON = (data, fileName) => {
+function exportJSON(data, fileName) {
 
   const blob = new Blob([JSON.stringify(data)], { type: 'application/json;charset=utf-8' });
 
@@ -236,9 +236,9 @@ const exportJSON = (data, fileName) => {
     link.click();
     window.URL.revokeObjectURL(link.href);
   }
-};
+}
 
-const importJSON = () => {
+function importJSON() {
   return new Promise((resolve, reject) => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -258,7 +258,30 @@ const importJSON = () => {
       };
     };
   });
-};
+}
+
+function replaceTemplate(_text, data = {}) {
+  let text = _text;
+
+  function replaceText(template, key, value) {
+    // 检查文本中是否包含 {{key}}
+    const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+
+    if (!regex.test(template)) {
+      return template;  // 如果不包含 {{key}}，则不进行处理，直接返回原文本
+    }
+
+    // 使用 replace 方法进行全局替换
+    return template.replace(regex, value);
+  }
+
+  // 遍历 data 对象
+  for (const key in data) {
+    text = replaceText(text, key, data[key]);
+  }
+
+  return text;
+}
 
 export default {
   localFullScreen,
@@ -274,5 +297,6 @@ export default {
   hexToRgba,
   getTextColor,
   exportJSON,
-  importJSON
+  importJSON,
+  replaceTemplate
 };
