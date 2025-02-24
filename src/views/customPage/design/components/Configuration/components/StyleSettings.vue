@@ -58,10 +58,7 @@ watch(() => styleData, (value) => {
 
   data.boxShadow = `${data.boxShadowOffsetX} ${data.boxShadowOffsetY} ${data.boxShadowBlur} ${data.boxShadowColor}`;
 
-  if (data.backgroundImage) {
-    data.backgroundImage = `url(${data.backgroundImage})`;
-  }
-
+  // 清除无用数据
   for (const key in data) {
     if (data[key] === '') {
       delete data[key];

@@ -263,6 +263,31 @@ function importJSON() {
 function replaceTemplate(_text, data = {}) {
   let text = _text;
 
+  // 扁平化对象：将嵌套对象转化为 'parent.child' 的形式
+  function flattenObject(obj, prefix = '') {
+    let result = {};
+
+    for (const key in obj) {
+      // 安全调用 Object.prototype.hasOwnProperty
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const newKey = prefix ? `${prefix}.${key}` : key;
+        const value = obj[key];
+
+        // 如果是对象，则递归扁平化
+        if (typeof value === 'object' && value !== null) {
+          Object.assign(result, flattenObject(value, newKey));
+        } else {
+          result[newKey] = value;
+        }
+      }
+    }
+
+    return result;
+  }
+
+  // 获取扁平化后的数据
+  const flatData = flattenObject(data);
+
   function replaceText(template, key, value) {
     // 检查文本中是否包含 {{key}}
     const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
@@ -276,8 +301,10 @@ function replaceTemplate(_text, data = {}) {
   }
 
   // 遍历 data 对象
-  for (const key in data) {
-    text = replaceText(text, key, data[key]);
+  for (const key in flatData) {
+    const value = flatData[key];
+
+    text = replaceText(text, key, value);
   }
 
   return text;
