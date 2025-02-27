@@ -24,6 +24,8 @@ const List = defineAsyncComponent(() => import('./AttributeConfigEngineType/List
 
 const RichText = defineAsyncComponent(() => import('./AttributeConfigEngineType/RichText.vue'));
 
+const GaoDeMap = defineAsyncComponent(() => import('./AttributeConfigEngineType/GaoDeMap.vue'));
+
 const propsData = ref(props.modelValue);
 
 watch(() => propsData.value, (value) => {
@@ -131,6 +133,9 @@ const componentName = props.setting.type === 'slot' ? defineAsyncComponent(() =>
 
       <!-- uploadFile -->
       <UploadFile v-model="propsData[dataKey]" :option="setting" v-if="setting.type === 'uploadFile'" />
+
+      <!-- gaoDeMap 高德地图 -->
+      <GaoDeMap v-model="propsData[dataKey]" :setting="setting" v-if="setting.type === 'gaoDeMap'" />
     </div>
   </div>
 </template>

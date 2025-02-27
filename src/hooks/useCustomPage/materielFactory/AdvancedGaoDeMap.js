@@ -9,9 +9,15 @@ export default class AdvancedGaoDeMap extends BaseMateriel {
 
   get defaultProps() {
     return {
-      longitude: '116.40',  // 经度
-      latitude: '39.91',  // 纬度
-      address: '北京市'  // 地址
+      map: {
+        longitude: '116.40',  // 经度
+        latitude: '39.91',  // 纬度
+        name: '北京',  // 名称
+        address: '北京市'  // 地址
+      },
+      showName: true,  // 显示地点名称
+      showAddress: true  // 显示地址
+      // openGuide: true  // 开启导航指引
     };
   }
 
@@ -34,20 +40,25 @@ export default class AdvancedGaoDeMap extends BaseMateriel {
         type: 'block',
         children: [
           {
-            title: '经度',
-            type: 'input',
-            propsKey: 'longitude'
+            title: '高德地图定位',
+            type: 'gaoDeMap',
+            propsKey: 'map'
           },
           {
-            title: '纬度',
-            type: 'input',
-            propsKey: 'latitude'
+            title: '显示地点名称',
+            type: 'switch',
+            propsKey: 'showName'
           },
           {
-            title: '地址',
-            type: 'textarea',
-            propsKey: 'address'
+            title: '显示地址',
+            type: 'switch',
+            propsKey: 'showAddress'
           }
+          // {
+          //   title: '开启导航指引',
+          //   type: 'switch',
+          //   propsKey: 'openGuide'
+          // }
         ]
       }
     ];
