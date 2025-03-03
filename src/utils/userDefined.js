@@ -342,6 +342,7 @@ function unfastenObject(flatObj) {
   return result;
 }
 
+// 替换模板字符串中的变量
 function replaceTemplate(_text, data = {}) {
   let text = _text;
 
