@@ -260,30 +260,90 @@ function importJSON() {
   });
 }
 
-function replaceTemplate(_text, data = {}) {
-  let text = _text;
+// 扁平化对象：将嵌套对象转化为 'parent.child' 的形式
+function flattenObject(obj, prefix = '') {
+  // 存储最终结果的扁平对象
+  let result = {};
 
-  // 扁平化对象：将嵌套对象转化为 'parent.child' 的形式
-  function flattenObject(obj, prefix = '') {
-    let result = {};
+  // 遍历当前对象的所有可枚举属性
+  for (const key in obj) {
+    // 安全检测：确保只处理对象自身的属性（跳过原型链属性）
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
 
-    for (const key in obj) {
-      // 安全调用 Object.prototype.hasOwnProperty
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        const newKey = prefix ? `${prefix}.${key}` : key;
-        const value = obj[key];
+      /* 键名生成逻辑 */
+      // 当前属性路径：如果有前缀则拼接，否则直接使用当前键
+      // 示例：prefix='parent', key='child' => 'parent.child'
+      const newKey = prefix ? `${prefix}.${key}` : key;
 
-        // 如果是对象，则递归扁平化
-        if (typeof value === 'object' && value !== null) {
-          Object.assign(result, flattenObject(value, newKey));
-        } else {
-          result[newKey] = value;
-        }
+      // 获取当前属性值
+      const value = obj[key];
+
+      /* 值处理逻辑 */
+      if (typeof value === 'object' && value !== null) {
+        // 递归情况：值为对象/数组时继续深层扁平化
+        // 使用 Object.assign 合并深层扁平化结果到当前结果集
+        Object.assign(
+          result,
+          flattenObject(value, newKey) // 递归时传递拼接后的新键名作为前缀
+        );
+      } else {
+        // 基础情况：原始值直接存入结果对象
+        result[newKey] = value;
       }
     }
-
-    return result;
   }
+
+  return result;
+}
+
+// 恢复扁平对象：将扁平对象转化为嵌套对象
+function unfastenObject(flatObj) {
+  const result = {};
+
+  for (const [key, value] of Object.entries(flatObj)) {
+    const path = key.split('.');
+    let current = result;
+
+    for (let i = 0; i < path.length; i++) {
+      const part = path[i];
+      const isLast = i === path.length - 1;
+
+      // 更严格的数组索引检测逻辑
+      let isNextPartArrayIndex = false;
+      if (!isLast) {
+        const nextPart = path[i + 1];
+        const num = Number(nextPart);
+
+        // 同时满足：
+        // 1. 是有效数字
+        // 2. 是非负整数
+        // 3. 数字的字符串形式与原字符串严格一致（避免前导零等问题）
+        isNextPartArrayIndex = (
+          !isNaN(num) &&                     // 是有效数字
+          Number.isInteger(num) &&           // 是整数
+          num >= 0 &&                        // 非负
+          num <= 4294967295 &&               // 在数组最大索引范围内
+          String(num) === nextPart           // 严格匹配格式
+        );
+      }
+
+      if (!isLast) {
+        if (current[part] === undefined) {
+          // 根据下一层级是否为数组索引，决定创建数组或对象
+          current[part] = isNextPartArrayIndex ? [] : {};
+        }
+        current = current[part];
+      } else {
+        current[part] = value;
+      }
+    }
+  }
+
+  return result;
+}
+
+function replaceTemplate(_text, data = {}) {
+  let text = _text;
 
   // 获取扁平化后的数据
   const flatData = flattenObject(data);
@@ -325,5 +385,7 @@ export default {
   getTextColor,
   exportJSON,
   importJSON,
+  flattenObject,
+  unfastenObject,
   replaceTemplate
 };
