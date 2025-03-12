@@ -342,7 +342,6 @@ function unfastenObject(flatObj) {
   return result;
 }
 
-// 替换模板字符串中的变量
 function replaceTemplate(_text, data = {}) {
   let text = _text;
 
@@ -371,6 +370,106 @@ function replaceTemplate(_text, data = {}) {
   return text;
 }
 
+/**
+ * @author: chenbz
+ * @description: 跳转到地图导航
+ * @param {Object} data
+ * @param {Number} data.latitude - 纬度
+ * @param {Number} data.longitude - 经度
+ * @param {String} data.name - 地点名称
+ * @param {String} data.address - 地点地址
+ * @param {String} data.mapType - 地图类型: 'gaode' | 'baidu'
+ * @param {Boolean} data.isNewWindow - 是否新窗口打开
+ */
+function navigateToMap(data = {}) {
+  let { latitude,
+    longitude,
+    name,
+    address,
+    mapType = 'gaode',
+    isNewWindow = false
+  } = data;
+
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isWechat = /MicroMessenger/i.test(navigator.userAgent);
+
+  if (!name) {
+    name = address;
+  }
+
+  name = encodeURIComponent(name);
+  address = encodeURIComponent(address);
+
+  if (!['gaode', 'baidu'].includes(mapType)) {
+    console.error('mapType参数错误');
+    return;
+  }
+
+  let protocol = '';
+
+  if (mapType === 'gaode') {
+    const iosScheme = `iosamap://path?sourceApplication=applicationName&dlat=${latitude}&dlon=${longitude}&dname=${name}&dev=0&t=0`;
+    const androidScheme = `amapuri://route/plan?sourceApplication=applicationName&dlat=${latitude}&dlon=${longitude}&dname=${name}&dev=0&t=0`;
+    const webUrl = `//uri.amap.com/marker?markers=${longitude},${latitude},${name}&src=mypage&callnative=0`;
+
+    protocol = webUrl;
+
+    // 移动端
+    if (isMobile) {
+      if (isIOS) {
+        // 官方文档: https://lbs.amap.com/api/amap-mobile/guide/ios/route
+        protocol = iosScheme;
+      }
+
+      if (isAndroid) {
+        // 官方文档: https://lbs.amap.com/api/amap-mobile/guide/android/route
+        protocol = androidScheme;
+      }
+
+      // 微信浏览器无法唤起app, 降级方案 => 跳转到高德地图H5页面
+      if (isWechat) {
+        // 官方文档: https://lbs.amap.com/api/uri-api/guide/mobile-web/points
+        protocol = webUrl;
+      }
+    }
+  }
+
+  if (mapType === 'baidu') {
+    const iosScheme = `baidumap://map/direction?destination=name:${name}|latlng:${latitude},${longitude}&mode=driving&src=ios.baidu.openAPIdemo`;
+    const androidScheme = `bdapp://map/direction?destination=name:${name}|latlng:${latitude},${longitude}&mode=driving&src=ios.baidu.openAPIdemo`;
+    const webUrl = `//api.map.baidu.com/marker?location=${latitude},${longitude}&title=${name}&content=${address}&output=html&src=webapp.baidu.openAPIdemo`;
+
+    protocol = webUrl;
+
+    // 移动端
+    if (isMobile) {
+      if (isIOS) {
+        // 官方文档: https://lbsyun.baidu.com/faq/api?title=webapi/uri/ios
+        protocol = iosScheme;
+      }
+      if (isAndroid) {
+        // 官方文档: https://lbsyun.baidu.com/faq/api?title=webapi/uri/andriod
+        protocol = androidScheme;
+      }
+
+      // 微信浏览器无法唤起app, 降级方案 => 跳转到百度地图H5页面
+      if (isWechat) {
+        // 官方文档: https://lbsyun.baidu.com/faq/api?title=webapi/uri/web
+        protocol = webUrl;
+      }
+    }
+  }
+
+  if (isNewWindow) {
+    window.open(protocol, '_blank');
+  } else {
+    window.location.href = protocol;
+  }
+}
+
+
 export default {
   localFullScreen,
   getParameter,
@@ -388,5 +487,6 @@ export default {
   importJSON,
   flattenObject,
   unfastenObject,
-  replaceTemplate
+  replaceTemplate,
+  navigateToMap
 };

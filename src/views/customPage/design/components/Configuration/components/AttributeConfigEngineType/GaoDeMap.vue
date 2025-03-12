@@ -42,7 +42,7 @@ function searchAddress() {
 
 function clickAddress(data) {
 
-  const { location, name, address } = data;
+  const { location, name, address, pname, pcode, cityname, citycode, adname, adcode } = data;
 
   const coordinates = location.split(',');
 
@@ -53,22 +53,23 @@ function clickAddress(data) {
     name,
     address,
     longitude,
-    latitude
+    latitude,
+    pname,
+    pcode,
+    cityname,
+    citycode,
+    adname,
+    adcode
   });
 }
 
 // 获取静态地图
 function getStaticMap(data) {
-  const { longitude, latitude, name, address } = data;
+  const { longitude, latitude } = data;
 
   const location = `${longitude},${latitude}`;
 
-  mapData.value = {
-    name,
-    address,
-    longitude,
-    latitude
-  };
+  mapData.value = data;
 
   staticMap.value = `https://restapi.amap.com/v3/staticmap?key=${key}&location=${location}&zoom=14&markers=mid,,A:${location}`;
 }
